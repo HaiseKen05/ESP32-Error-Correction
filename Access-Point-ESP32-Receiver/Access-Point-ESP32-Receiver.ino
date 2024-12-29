@@ -10,7 +10,7 @@ const uint16_t serverPort = 1234;
 WiFiServer server(serverPort);
 WiFiClient client;
 
-const int useInitialMessageButtonPin = 14; // GPIO 14 (adjustable)
+const int CorrectionPin = 14; // GPIO 14 (adjustable)
 
 String initialMessage = "";         // To store the Initial Message
 String reconstructedMessage = "";   // To store the Reconstructed Message
@@ -20,7 +20,7 @@ void setup() {
   Serial.begin(115200);
 
   // Initialize the button pin
-  pinMode(useInitialMessageButtonPin, INPUT_PULLUP);
+  pinMode(CorrectionPin, INPUT_PULLUP);
 
   // Start Wi-Fi in Access Point mode
   WiFi.softAP(ssid, password);
@@ -74,7 +74,7 @@ void loop() {
           Serial.println("Press the button to correct the corrupted message.");
 
           // Wait for button press
-          while (digitalRead(useInitialMessageButtonPin) == HIGH) {
+          while (digitalRead(CorrectionPin) == HIGH) {
             delay(10);
           }
 
