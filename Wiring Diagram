@@ -1,0 +1,45 @@
+# ============= Wiring Diagram =============
+# EN Button
+- One leg to EN Pin to both Sender and Receiver
+- One leg to GND
+# Corrupt Button
+- One leg to GPIO 14 // It is adjustable to any pin as long as you define it
+- One leg to GND
+# Correct Button
+- One leg to GPIO 14 // It is adjustable to any pin as long as you define it
+- One leg to GND
+
+# ============= Visual Diagram =============
+
+# EN Button for both the Sender and Receiver
+  Sender
+  EN Pin
+   _||___||_
+  |         |
+  |         |
+  |_  ___  _|
+    ||   ||
+ EN Pin  GND
+Receiver
+
+
+# Corruption and Correction Button for the Sender and Receiver
+  Sender
+  GPI0 14 
+    Pin
+   _||___||_
+  |         |
+  |         |
+  |_  ___  _|
+    ||   ||
+         GND
+
+  Receiver
+  GPI0 14 
+    Pin
+   _||___||_
+  |         |
+  |         |
+  |_  ___  _|
+    ||   ||
+         GND
