@@ -10,17 +10,17 @@ const uint16_t serverPort = 1234;
 WiFiServer server(serverPort);
 WiFiClient client;
 
-const int CorrectionPin = 14;  // GPIO 14 (adjustable)
+const int useInitialMessageButtonPin = 14; // GPIO 14 (adjustable)
 
-String initialMessage = "";        // To store the Initial Message
-String reconstructedMessage = "";  // To store the Reconstructed Message
-String currentBinary = "";         // Temporary storage for 8 bits
+String initialMessage = "";         // To store the Initial Message
+String reconstructedMessage = "";   // To store the Reconstructed Message
+String currentBinary = "";          // Temporary storage for 8 bits
 
 void setup() {
   Serial.begin(115200);
 
   // Initialize the button pin
-  pinMode(CorrectionPin, INPUT_PULLUP);
+  pinMode(useInitialMessageButtonPin, INPUT_PULLUP);
 
   // Start Wi-Fi in Access Point mode
   WiFi.softAP(ssid, password);
@@ -32,16 +32,16 @@ void setup() {
   server.begin();
   Serial.println("Server Started");
 }
-
-void displayProgressBar() {
+  void displayProgressBar() {
   Serial.print("Correcting message: ");
   for (int i = 0; i < 8; i++) {
-    delay(1000);  // 1 second delay per dot
+    delay(1000); // 1 second delay per dot
     Serial.print("X ");
-    delay(750);  // Dramatic delay
+    delay(750); // Delay to simulate loading the corrected message
   }
   Serial.println();
 }
+
 
 void loop() {
   // Check for new client connection
@@ -58,31 +58,31 @@ void loop() {
     // Detect newline indicating end of Initial Message or Binary Data
     if (receivedChar == '\n') {
       if (initialMessage.isEmpty()) {
-        // Store the Initial Message
+        // Store the Initial Message (trimmed)
         initialMessage = reconstructedMessage;
-        reconstructedMessage = "";  // Reset for bit-by-bit reconstruction
+        initialMessage.trim(); // Remove trailing spaces or newlines
+        reconstructedMessage = ""; // Reset for bit-by-bit reconstruction
       } else {
         // End of bit-by-bit transmission
+        reconstructedMessage.trim(); // Remove trailing spaces or newlines
         Serial.println("Reconstructed Message: " + reconstructedMessage);
-        delay(5000);  // Delay to make it seem it is doing comparison between the initial message and reconstructed message
-
+        delay(5000); // Dramatic delay 
+        
         // Perform comparison
         if (initialMessage != reconstructedMessage) {
           Serial.println("Discrepancy Detected!");
           Serial.println("Press the button to correct the corrupted message.");
 
           // Wait for button press
-          while (digitalRead(CorrectionPin) == HIGH) {
+          while (digitalRead(useInitialMessageButtonPin) == HIGH) {
             delay(10);
           }
 
-          // Simulate correction with delay and progress bar
           displayProgressBar();
 
           Serial.println("Corrected Message: " + initialMessage);
         } else {
           // No discrepancy detected
-          reconstructedMessage = initialMessage;  // Explicitly assign to ensure consistency
           Serial.println("No Discrepancy Detected. Final Output: " + reconstructedMessage);
         }
 
@@ -109,7 +109,7 @@ void loop() {
           }
         }
         reconstructedMessage += character;
-        currentBinary = "";  // Reset for the next character
+        currentBinary = ""; // Reset for the next character
       }
     }
   }
