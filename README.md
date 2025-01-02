@@ -2,7 +2,7 @@
 This project deals with Error Detection and Error Correction without the use of any error error correction logic such as: Hamming Code, Parity Checks, or CRC (Cyclic Redundancy Check). This is a fun project developed by a single developer who carries the weight of 9 dead-weight group members and with the help of ChatGPT. Yes you heard that right ChatGPT helped me write 99% of the code as I'm learning how to code microcontrollers.
 
 # Process Flow
-This is how workflow of the project. Starting with the Sender.
+This is how the workflow of the project. Starting with the Sender.
 
 Sender
 - It uses the Serial Monitor to send the message to the Receiver.
