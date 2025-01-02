@@ -10,18 +10,13 @@ const uint16_t serverPort = 1234;
 WiFiServer server(serverPort);
 WiFiClient client;
 
-const int CorrectionPin = 14; // GPIO 14 (adjustable)
-
 String initialMessage = "";         // To store the Initial Message
 String reconstructedMessage = "";   // To store the Reconstructed Message
 String currentBinary = "";          // Temporary storage for 8 bits
 
 void setup() {
   Serial.begin(115200);
-
-  // Initialize the button pin
-  pinMode(CorrectionPin, INPUT_PULLUP);
-
+  
   // Start Wi-Fi in Access Point mode
   WiFi.softAP(ssid, password);
   Serial.println("Wi-Fi Access Point Started");
@@ -34,7 +29,7 @@ void setup() {
 }
   void displayProgressBar() {
   Serial.print("Correcting message: ");
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 5; i++) {
     delay(1000); // 1 second delay per dot
     Serial.print("X ");
     delay(750); // Delay to simulate loading the corrected message
@@ -71,13 +66,7 @@ void loop() {
         // Perform comparison
         if (initialMessage != reconstructedMessage) {
           Serial.println("Discrepancy Detected!");
-          Serial.println("Press the button to correct the corrupted message.");
-
-          // Wait for button press
-          while (digitalRead(CorrectionPin) == HIGH) {
-            delay(10);
-          }
-
+          delay(1000);
           displayProgressBar();
 
           Serial.println("Corrected Message: " + initialMessage);
