@@ -1,3 +1,6 @@
+// So far this code works 
+
+
 // Corruption button pin
 const int corruptionButtonPin = 2;
 
@@ -44,7 +47,6 @@ void loop() {
         }
 
         // Transmit the bit
-        Serial.print(bit);
         Serial.print(bit); // Print in a single line
         delay(500); // Delay for visible transmission speed
       }
