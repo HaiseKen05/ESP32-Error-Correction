@@ -1,3 +1,6 @@
+// DONT USE THIS CODE FOR THE ARDUINO YET!!!!
+
+
 #include <Wire.h>
 #include <hd44780.h>                       // Main hd44780 header
 #include <hd44780ioClass/hd44780_I2Cexp.h> // I2C LCD header
