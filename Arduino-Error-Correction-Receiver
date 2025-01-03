@@ -1,0 +1,111 @@
+#include <Wire.h>
+#include <hd44780.h>                       // Main hd44780 header
+#include <hd44780ioClass/hd44780_I2Cexp.h> // I2C LCD header
+
+// LCD settings
+hd44780_I2Cexp lcd(0x27, 20, 4); // Change 0x27 to your LCD's I2C address if needed
+
+String initialMessage = "";         // To store the initial message
+String reconstructedMessage = "";   // To store the reconstructed message
+String currentBinary = "";          // Temporary storage for 8 bits
+
+void displayProgressBar() {
+  Serial.print("Correcting message: ");
+  lcd.clear();
+  lcd.print("Correcting...");
+
+  for (int i = 0; i < 7; i++) {
+    delay(1000); // 1 second delay per dot
+    Serial.print("X ");
+    lcd.setCursor(i, 1); // Update progress on LCD
+    lcd.print("X ");
+  }
+  Serial.println();
+}
+
+void setup() {
+  Serial.begin(9600); // Set the baud rate for UART communication
+
+  // Initialize LCD
+  lcd.begin(20, 4);
+  lcd.backlight();
+  lcd.print("Starting...");
+  delay(2000);
+
+  lcd.clear();
+  lcd.print("Waiting for data...");
+  Serial.println("Receiver Ready");
+}
+
+void loop() {
+  // Check if data is available on the Serial
+  if (Serial.available()) {
+    char receivedChar = Serial.read();
+
+    // Detect newline indicating the end of the initial message or binary data
+    if (receivedChar == '\n') {
+      if (initialMessage.isEmpty()) {
+        // Store the initial message (trimmed)
+        initialMessage = reconstructedMessage;
+        initialMessage.trim(); // Remove trailing spaces or newlines
+        reconstructedMessage = ""; // Reset for bit-by-bit reconstruction
+      } else {
+        // End of bit-by-bit transmission
+        reconstructedMessage.trim(); // Remove trailing spaces or newlines
+        Serial.println("Reconstructed Message: " + reconstructedMessage);
+        lcd.clear();
+        lcd.print("Received Message: ");
+        lcd.setCursor(0, 1);
+        lcd.print(reconstructedMessage);
+        delay(5000); // Dramatic delay
+        
+        // Perform comparison
+        if (initialMessage != reconstructedMessage) {
+          Serial.println("Discrepancy Detected!");
+          lcd.clear();
+          lcd.print("Discrepancy!");
+          delay(2000);
+          displayProgressBar();
+
+          Serial.println("Corrected Message: " + initialMessage);
+          lcd.clear();
+          lcd.print("Corrected:");
+          lcd.setCursor(0, 1);
+          lcd.print(initialMessage);
+        } else {
+          // No discrepancy detected
+          Serial.println("No Discrepancy Detected. Final Output: " + reconstructedMessage);
+          lcd.clear();
+          lcd.print("Final Msg:");
+          lcd.setCursor(0, 1);
+          lcd.print(reconstructedMessage);
+        }
+
+        // Reset for the next transmission
+        reconstructedMessage = "";
+      }
+      return;
+    }
+
+    // Handle binary data or initial message
+    if (initialMessage.isEmpty()) {
+      // During the initial message phase
+      reconstructedMessage += receivedChar;
+    } else if (receivedChar == '0' || receivedChar == '1') {
+      // During the binary transmission phase
+      currentBinary += receivedChar;
+
+      // If we have 8 bits, reconstruct the character
+      if (currentBinary.length() == 8) {
+        char character = 0;
+        for (int i = 0; i < 8; i++) {
+          if (currentBinary[i] == '1') {
+            character |= (1 << (7 - i));
+          }
+        }
+        reconstructedMessage += character;
+        currentBinary = ""; // Reset for the next character
+      }
+    }
+  }
+}
