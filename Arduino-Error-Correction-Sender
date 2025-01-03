@@ -1,0 +1,56 @@
+// Corruption button pin
+const int corruptionButtonPin = 2;
+
+void setup() {
+  Serial.begin(9600); // Set the baud rate for UART communication
+  
+  // Initialize the corruption button pin
+  pinMode(corruptionButtonPin, INPUT_PULLUP);
+
+  Serial.println("Arduino Sender Ready");
+}
+
+void loop() {
+  if (Serial.available()) {
+    // Read the message from Serial Monitor
+    String message = Serial.readStringUntil('\n');
+    Serial.println("Message: " + message);
+
+    // Send the initial message
+    for (int i = 0; i < message.length(); i++) {
+      Serial.print(message[i]); // Send each character via UART
+    }
+    Serial.print('\n'); // Signal end of the initial message
+    Serial.println("Initial Message Sent");
+
+    // Process each character for bit-by-bit transmission
+    for (char c : message) {
+      String binary = "";
+      for (int i = 7; i >= 0; i--) {
+        binary += (c & (1 << i)) ? '1' : '0';
+      }
+
+      Serial.print("Transmitting Binary of '");
+      Serial.print(c);
+      Serial.print("': ");
+
+      // Send each bit
+      for (int i = 0; i < 8; i++) {
+        char bit = binary[i];
+
+        // Check if the corruption button is pressed
+        if (digitalRead(corruptionButtonPin) == LOW) {
+          bit = (bit == '0') ? '1' : '0'; // Flip the bit
+        }
+
+        // Transmit the bit
+        Serial.print(bit);
+        Serial.print(bit); // Print in a single line
+        delay(500); // Delay for visible transmission speed
+      }
+      Serial.println(); // End of the binary transmission line
+    }
+    Serial.print('\n'); // Signal end of bit-by-bit transmission
+    Serial.println("Message Sent!");
+  }
+}
