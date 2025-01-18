@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <hd44780.h>                       // main hd44780 header
 #include <hd44780ioClass/hd44780_I2Cexp.h>
+
 // Wi-Fi credentials
 const char* ssid = "ESP32_AP";
 const char* password = "12345678";
@@ -87,7 +88,7 @@ void loop() {
         Serial.println("Reconstructed Message: " + reconstructedMessage);
         lcd.clear();
         lcd.print("Received Message: ");
-        lcd.setCursor(0,1);
+        lcd.setCursor(0, 1);
         lcd.print(reconstructedMessage);
         delay(5000); // Dramatic delay 
         
@@ -127,6 +128,13 @@ void loop() {
       // During the binary transmission phase
       currentBinary += receivedChar;
 
+      // Display the progressively built byte
+      lcd.clear();
+      lcd.print("Byte Progress:");
+      lcd.setCursor(0, 1);
+      lcd.print(currentBinary);
+      delay(500); // Small delay for visual feedback
+
       // If we have 8 bits, reconstruct the character
       if (currentBinary.length() == 8) {
         char character = 0;
@@ -136,6 +144,14 @@ void loop() {
           }
         }
         reconstructedMessage += character;
+
+        // Show the completed byte on the LCD
+        lcd.clear();
+        lcd.print("Byte Complete:");
+        lcd.setCursor(0, 1);
+        lcd.print(currentBinary);
+        delay(2000); // Delay for showing the full byte
+
         currentBinary = ""; // Reset for the next character
       }
     }
